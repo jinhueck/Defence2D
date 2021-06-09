@@ -14,7 +14,7 @@ public class CharSpawnBase : MonoBehaviour
     public ConvertStorageStageGenData<StageGenData> convertStorage_StageGen; 
     private string sz_pathCSV_Stage = "StageGenData";
 
-    public ConvertStorageMonsterData<StageGenData> convertStorage_Monster;
+    public ConvertStorageMonsterData<MonsterData> convertStorage_Monster;
     private string sz_pathCSV_MonsterData = "MonsterData";
 
 
@@ -33,7 +33,7 @@ public class CharSpawnBase : MonoBehaviour
 
         if(convertStorage_Monster == null)
         {
-            convertStorage_Monster = new ConvertStorageMonsterData<StageGenData>();
+            convertStorage_Monster = new ConvertStorageMonsterData<MonsterData>();
         }
         convertStorage_Monster.ConvertCSVToClass(sz_pathCSV_MonsterData);
     }
