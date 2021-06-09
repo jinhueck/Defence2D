@@ -13,6 +13,8 @@ public class CharactorCtrl : MonoBehaviour
     };
     public State state = State.MOVE;
 
+    public int key;
+
     protected float MoveSpeed;
     protected float Hp;
     public float nowHp;
@@ -70,7 +72,7 @@ public class CharactorCtrl : MonoBehaviour
 
     }
 
-    void Move()
+    public virtual void Move()
     {
         this.GetComponent<SpriteRenderer>().color = Color.white;
 
