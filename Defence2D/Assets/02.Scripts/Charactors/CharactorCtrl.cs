@@ -7,131 +7,174 @@ public class CharactorCtrl : MonoBehaviour
 {
     public enum State
     {
-        MOVE,
-        ATTACK,
-        DIE
+        Move,
+        Attack,
+        Hit,
+        Die
     };
-    public State state = State.MOVE;
+    private State state = State.Move;
 
     public int key;
 
-    protected float MoveSpeed;
-    protected float Hp;
-    public float nowHp;
-    protected float AttackPower;
-    protected float AttackDelay;
-    protected float Protection;
-    protected float AttackRange;
+    //캐릭터 정보
+    private int index;
+    private string monsterName;
+    private string type;
+    private int level;
+    private int atk;
+    private int def;
+    private int health;
+    private int atkRange;
+    private int atkSpeed;
+    private int moveSpeed;
+    private int spawnCool;
+    private int price;
+    private string resourceName;
+    private float charSize;
+    private string reward;
 
-    float tempAttackDelay = 0f;
+    float nowHealth;
     public Image HpImg;
+    private bool isDie = false;
 
+    GameObject attackTarget = null;
+    //CharSpawn charSpawn;
+
+    //임시 타겟리스트, 스폰스크립트에 생성
     public List<GameObject> TargetList;
-    public GameObject Target = null;
 
-
-    protected virtual void Start()
+    public void SetStat(MonsterData mData)
     {
-        HpImg.fillAmount = nowHp / Hp;
+        //기본 정보
+        index = mData.index;
+        monsterName = mData.monsterName;
+        type = mData.type;
+        level = mData.level;
+        atk = mData.atk;
+        def = mData.def;
+        health = mData.health;
+        atkRange = mData.atkRange;
+        atkSpeed = mData.atkSpeed;
+        moveSpeed = mData.moveSpeed;
+        spawnCool = mData.spawnCool;
+        price = mData.price;
+        resourceName = mData.resourceName;
+        charSize = mData.charSize;
+        reward = mData.reward;
+    }
+
+    private void Start()
+    {
+        //기본 셋팅
+        nowHealth = health;
+        HpImg.fillAmount = nowHealth / health;
+
+        ChangeState(State.Move);
+
+        //임시 공격 타겟 리스트
         TargetList = new List<GameObject>();
-        this.transform.GetChild(0).GetComponent<BoxCollider2D>().size = new Vector2(AttackRange, 10f);
-        this.GetComponent<BoxCollider2D>().enabled = true;
     }
 
-    //protected void SetAttackRange(float _AttackRange)
-    //{
-    //    HpImg.fillAmount = nowHp / Hp;
-    //    TargetList = new List<GameObject>();
-    //    this.transform.GetChild(0).GetComponent<BoxCollider2D>().size = new Vector2(_AttackRange, 10f);
-    //}
-
-    void StateCheck()
+    public void ChangeState(State newState)
     {
-        if (nowHp <= 0f)
-        {
-            state = State.DIE;
-            return;
-        }
-
-        if (TargetList.Count == 0)
-            state = State.MOVE;
-        else
-            state = State.ATTACK;
+        StopCoroutine(state.ToString());
+        state = newState;
+        StartCoroutine(state.ToString());
     }
 
-    void UpdateTarget()
+    private IEnumerator Move()
     {
-        foreach(GameObject target in TargetList)
+        while (true)
         {
-            if (Vector2.Distance(this.transform.position, target.transform.position)
-                < Vector2.Distance(this.transform.position, Target.transform.position))
+            //캐릭터 이동
+            if (this.transform.tag == "Player")
+                this.transform.Translate(new Vector3(moveSpeed * Time.deltaTime, 0f, 0f));
+            else if (this.transform.tag == "Enemy")
+                this.transform.Translate(new Vector3(-moveSpeed * Time.deltaTime, 0f, 0f));
+
+            //Search Target
+            float closestDist = Mathf.Infinity;
+
+            for (int i = 0; i < TargetList.Count; i++)
             {
-                Target = target;
+                float distance = Mathf.Abs(TargetList[i].transform.position.x - this.transform.position.x);
+                if (distance <= atkRange && distance < closestDist)
+                {
+                    closestDist = distance;
+                    attackTarget = TargetList[i];
+                }
             }
+
+            if (attackTarget != null)
+                ChangeState(State.Attack);
+
+            yield return null;
         }
-
     }
 
-    public virtual void Move()
+    private IEnumerator Attack()
     {
-        this.GetComponent<SpriteRenderer>().color = Color.white;
-
-        if (this.transform.tag == "Player")
-            this.transform.Translate(new Vector3(MoveSpeed * Time.deltaTime, 0f, 0f));
-        else if (this.transform.tag == "Enemy")
-            this.transform.Translate(new Vector3(-MoveSpeed * Time.deltaTime, 0f, 0f));
-    }
-
-    void Attack()
-    {
-        tempAttackDelay -= Time.deltaTime;
-        if (tempAttackDelay < 0f)
+        while (true)
         {
-            Target.GetComponent<CharactorCtrl>().GetDamage(AttackPower);
-            this.GetComponent<SpriteRenderer>().color = Color.red;
-            tempAttackDelay = AttackDelay;
-        }
+            //다른 캐릭터에 의해 제거
+            if (attackTarget == null)
+            {
+                ChangeState(State.Move);
+                break;
+            }
 
-        if (Target.GetComponent<CharactorCtrl>().nowHp <= 0f)
+            //공격범위 벗어남
+            float distance = Mathf.Abs(attackTarget.transform.position.x - this.transform.position.x);
+            if (distance > atkRange)
+            {
+                attackTarget = null;
+                ChangeState(State.Move);
+                break;
+            }
+
+            //공격 쿨타임
+            yield return new WaitForSeconds(atkSpeed);
+
+            //공격
+            attackTarget.GetComponent<CharactorCtrl>().Hit(atk);
+        }
+    }
+
+    public void Hit(float _damage)
+    {
+        if (isDie)
+            return;
+
+        nowHealth -= _damage;
+        HpImg.fillAmount = nowHealth / health;
+
+        //애니메이션
+        StopCoroutine("HitAnim");
+        StartCoroutine("HitAnim");
+
+        if (nowHealth <= 0f)
         {
-            this.TargetList.Remove(Target);
-            UpdateTarget();
+            isDie = true;
+            Die();
         }
     }
 
-    public void GetDamage(float _damage)
+    private IEnumerator HitAnim()
     {
-        //print(_damage);
-        nowHp -= _damage;
-        HpImg.fillAmount = nowHp / Hp;
+        Color color = this.GetComponent<SpriteRenderer>().color;
+
+        color.a = 0.4f;
+        this.GetComponent<SpriteRenderer>().color = color;
+
+        yield return new WaitForSeconds(0.07f);
+
+        color.a = 1f;
+        this.GetComponent<SpriteRenderer>().color = color;
     }
 
-    void Die()
+    public void Die()
     {
-        this.GetComponent<SpriteRenderer>().color = Color.black;
-        this.GetComponent<BoxCollider2D>().enabled = false;
-        this.TargetList.Clear();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        StateCheck();
-
-        switch (state)
-        {
-            case State.MOVE:
-                Move();
-                break;
-
-            case State.ATTACK:
-                Attack();
-                break;
-
-            case State.DIE:
-                Die();
-                break;
-
-        }
+        //CharSpawn에 List삭제, Destroy함수 추가
+        //charSpawn.Destroy(this);
     }
 }
