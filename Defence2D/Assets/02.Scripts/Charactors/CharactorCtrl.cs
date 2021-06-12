@@ -40,8 +40,10 @@ public class CharactorCtrl : MonoBehaviour
     GameObject attackTarget = null;
     //CharSpawn charSpawn;
 
+    Animator animator;
+
     //임시 타겟리스트, 스폰스크립트에 생성
-    public List<GameObject> TargetList;
+    public List<CharactorCtrl> TargetList;
 
     public void SetStat(MonsterData mData)
     {
@@ -65,21 +67,21 @@ public class CharactorCtrl : MonoBehaviour
 
     private void Start()
     {
-        //test
-        atk = 10;
-        health = 100;
-        atkRange = 10;
-        atkSpeed = 1;
+        //임시
         moveSpeed = 1;
+        atkSpeed = 1;
+        atkRange = 3;
+        health = 100;
+        atk = 10;
 
         //기본 셋팅
         nowHealth = health;
         //HpImg.fillAmount = nowHealth / health;
 
+        animator = this.GetComponent<Animator>();
+
         ChangeState(State.Move);
 
-        //임시 공격 타겟 리스트
-        TargetList = new List<GameObject>();
     }
 
     public void ChangeState(State newState)
@@ -101,20 +103,23 @@ public class CharactorCtrl : MonoBehaviour
 
             //Search Target
             float closestDist = Mathf.Infinity;
-
-            for (int i = 0; i < TargetList.Count; i++)
+            if(m_SpawnBase_Enemy != null)
             {
-                float distance = Mathf.Abs(TargetList[i].transform.position.x - this.transform.position.x);
-                if (distance <= atkRange && distance < closestDist)
+                TargetList = m_SpawnBase_Enemy.m_listCharCtrl_Use;
+
+                for (int i = 0; i < TargetList.Count; i++)
                 {
-                    closestDist = distance;
-                    attackTarget = TargetList[i];
+                    float distance = Mathf.Abs(TargetList[i].transform.position.x - this.transform.position.x);
+                    if (distance <= atkRange && distance < closestDist)
+                    {
+                        closestDist = distance;
+                        attackTarget = TargetList[i].gameObject;
+                    }
                 }
+
+                if (attackTarget != null)
+                    ChangeState(State.Attack);
             }
-
-            if (attackTarget != null)
-                ChangeState(State.Attack);
-
             yield return null;
         }
     }
@@ -123,6 +128,8 @@ public class CharactorCtrl : MonoBehaviour
     {
         while (true)
         {
+            animator.SetTrigger("isAttack");
+
             //다른 캐릭터에 의해 제거
             if (attackTarget == null)
             {
@@ -142,6 +149,8 @@ public class CharactorCtrl : MonoBehaviour
             //공격 쿨타임
             yield return new WaitForSeconds(atkSpeed);
 
+            if(attackTarget != null)
+
             //공격
             attackTarget.GetComponent<CharactorCtrl>().Hit(atk);
         }
@@ -153,7 +162,7 @@ public class CharactorCtrl : MonoBehaviour
             return;
 
         nowHealth -= _damage;
-        HpImg.fillAmount = nowHealth / health;
+        //HpImg.fillAmount = nowHealth / health;
 
         //애니메이션
         StopCoroutine("HitAnim");
@@ -181,6 +190,7 @@ public class CharactorCtrl : MonoBehaviour
 
     public void Die()
     {
+        m_SpawnBase_Team.RemoveMonster(this);
         //CharSpawn에 List삭제, Destroy targetDestroy함수에 추가
         //charSpawn.targetDestroy(this);
     }

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterCtrl: {fileID: 4799051311211683596, guid: 01ec1b665f38cbc4880b94e0c93f3e49,
     type: 3}
-  f_SpawnTime: 1
+  f_SpawnTime: 2

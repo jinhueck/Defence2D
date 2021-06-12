@@ -506,7 +506,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c1a0653620348e4f93deb90b160bf15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SpawnBaseOtherSide: {fileID: 0}
+  m_SpawnBaseOtherSide: {fileID: 1146444605}
   m_listCharCtrl_Use: []
   m_listCharCtrl_UnUse: []
   spawnPos: {fileID: 964875127}
@@ -1155,7 +1155,7 @@ SpriteRenderer:
   m_Size: {x: 2.56, y: 2.56}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1490710756
