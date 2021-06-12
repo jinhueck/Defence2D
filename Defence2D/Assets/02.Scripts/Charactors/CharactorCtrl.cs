@@ -65,9 +65,16 @@ public class CharactorCtrl : MonoBehaviour
 
     private void Start()
     {
+        //test
+        atk = 10;
+        health = 100;
+        atkRange = 10;
+        atkSpeed = 1;
+        moveSpeed = 1;
+
         //기본 셋팅
         nowHealth = health;
-        HpImg.fillAmount = nowHealth / health;
+        //HpImg.fillAmount = nowHealth / health;
 
         ChangeState(State.Move);
 
