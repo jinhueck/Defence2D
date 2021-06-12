@@ -184,4 +184,12 @@ public class CharactorCtrl : MonoBehaviour
         //CharSpawn에 List삭제, Destroy targetDestroy함수에 추가
         //charSpawn.targetDestroy(this);
     }
+
+    protected CharSpawnBase m_SpawnBase_Team;
+    protected CharSpawnBase m_SpawnBase_Enemy;
+    public void SetupSpawnBase(CharSpawnBase p_SpawnBase_Team, CharSpawnBase p_SpawnBase_Enemy)
+    {
+        this.m_SpawnBase_Team = p_SpawnBase_Team;
+        this.m_SpawnBase_Enemy = p_SpawnBase_Enemy;
+    }
 }

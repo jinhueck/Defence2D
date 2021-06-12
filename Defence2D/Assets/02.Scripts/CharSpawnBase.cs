@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 public class CharSpawnBase : MonoBehaviour
 {
+    public CharSpawnBase m_SpawnBaseOtherSide;
     public List<CharactorCtrl> m_listCharCtrl_Use = new List<CharactorCtrl>();
     public List<CharactorCtrl> m_listCharCtrl_UnUse = new List<CharactorCtrl>();
     
@@ -17,13 +18,14 @@ public class CharSpawnBase : MonoBehaviour
     public ConvertStorageMonsterData<MonsterData> convertStorage_Monster;
     private string sz_pathCSV_MonsterData = "MonsterData";
 
+    public Transform spawnPos;
 
-    private void Start()
+    protected void Start()
     {
         Setup();
     }
 
-    public void Setup()
+    public virtual void Setup()
     {
         if(convertStorage_StageGen == null)
         {
@@ -36,6 +38,18 @@ public class CharSpawnBase : MonoBehaviour
             convertStorage_Monster = new ConvertStorageMonsterData<MonsterData>();
         }
         convertStorage_Monster.ConvertCSVToClass(sz_pathCSV_MonsterData);
+    }
+    public virtual void SpawnMoster(int nIndex, bool bFlagMyTeam)
+    {
+
+    }
+    public void RemoveMonster(CharactorCtrl p_RemoveCharacter)
+    {
+        if (m_listCharCtrl_Use.Contains(p_RemoveCharacter))
+        {
+            m_listCharCtrl_Use.Remove(p_RemoveCharacter);
+            Destroy(p_RemoveCharacter.gameObject);
+        }
     }
 }
 
