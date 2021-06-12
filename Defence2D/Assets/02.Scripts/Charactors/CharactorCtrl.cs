@@ -174,7 +174,7 @@ public class CharactorCtrl : MonoBehaviour
 
     public void Die()
     {
-        //CharSpawn에 List삭제, Destroy함수 추가
-        //charSpawn.Destroy(this);
+        //CharSpawn에 List삭제, Destroy targetDestroy함수에 추가
+        //charSpawn.targetDestroy(this);
     }
 }
