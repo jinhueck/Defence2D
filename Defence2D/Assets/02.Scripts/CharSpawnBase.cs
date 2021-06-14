@@ -47,9 +47,9 @@ public class CharSpawnBase : MonoBehaviour
     {
         if (m_listCharCtrl_Use.Contains(p_RemoveCharacter))
         {
-            p_RemoveCharacter.gameObject.SetActive(false);
             m_listCharCtrl_Use.Remove(p_RemoveCharacter);
-            Destroy(p_RemoveCharacter.gameObject);
+            //p_RemoveCharacter.gameObject.SetActive(false);
+            //Destroy(p_RemoveCharacter.gameObject);
         }
     }
 }

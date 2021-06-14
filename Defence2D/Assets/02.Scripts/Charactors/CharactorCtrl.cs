@@ -33,17 +33,16 @@ public class CharactorCtrl : MonoBehaviour
     private float charSize;
     private string reward;
 
+    float atkCoolTime;
     float nowHealth;
     public Image HpImg;
     private bool isDie = false;
+    float DeadAnimTime;
 
-    GameObject attackTarget = null;
-    //CharSpawn charSpawn;
+    public GameObject attackTarget = null;
+    public List<GameObject> AttackedList;
 
     Animator animator;
-
-    //임시 타겟리스트, 스폰스크립트에 생성
-    public List<CharactorCtrl> TargetList;
 
     public void SetStat(MonsterData mData)
     {
@@ -75,9 +74,12 @@ public class CharactorCtrl : MonoBehaviour
         atk = 10;
 
         //기본 셋팅
+        atkCoolTime = atkSpeed;
+        DeadAnimTime = 3f;
         nowHealth = health;
         //HpImg.fillAmount = nowHealth / health;
 
+        AttackedList = new List<GameObject>();
         animator = this.GetComponent<Animator>();
 
         ChangeState(State.Move);
@@ -93,6 +95,8 @@ public class CharactorCtrl : MonoBehaviour
 
     private IEnumerator Move()
     {
+        animator.SetBool("isAttack", false);
+
         while (true)
         {
             //캐릭터 이동
@@ -105,15 +109,13 @@ public class CharactorCtrl : MonoBehaviour
             float closestDist = Mathf.Infinity;
             if(m_SpawnBase_Enemy != null)
             {
-                TargetList = m_SpawnBase_Enemy.m_listCharCtrl_Use;
-
-                for (int i = 0; i < TargetList.Count; i++)
+                for (int i = 0; i < m_SpawnBase_Enemy.m_listCharCtrl_Use.Count; i++)
                 {
-                    float distance = Mathf.Abs(TargetList[i].transform.position.x - this.transform.position.x);
+                    float distance = Mathf.Abs(m_SpawnBase_Enemy.m_listCharCtrl_Use[i].transform.position.x - this.transform.position.x);
                     if (distance <= atkRange && distance < closestDist)
                     {
                         closestDist = distance;
-                        attackTarget = TargetList[i].gameObject;
+                        attackTarget = m_SpawnBase_Enemy.m_listCharCtrl_Use[i].gameObject;
                     }
                 }
 
@@ -126,10 +128,15 @@ public class CharactorCtrl : MonoBehaviour
 
     private IEnumerator Attack()
     {
+        animator.SetBool("isAttack", true);
+
+        CharactorCtrl attackedCharac = attackTarget.GetComponent<CharactorCtrl>();
+
+        if (!attackedCharac.AttackedList.Contains(this.gameObject))
+            attackedCharac.AttackedList.Add(this.gameObject);
+
         while (true)
         {
-            animator.SetTrigger("isAttack");
-
             //다른 캐릭터에 의해 제거
             if (attackTarget == null)
             {
@@ -146,14 +153,35 @@ public class CharactorCtrl : MonoBehaviour
                 break;
             }
 
-            //공격 쿨타임
-            yield return new WaitForSeconds(atkSpeed);
+            ////공격
+            //if(attackTarget != null)
+            //    attackTarget.GetComponent<CharactorCtrl>().Hit(atk);
 
-            if(attackTarget != null)
+            ////공격 쿨타임
+            //yield return new WaitForSeconds(atkSpeed);
 
-            //공격
-            attackTarget.GetComponent<CharactorCtrl>().Hit(atk);
+            if (attackTarget != null)
+                AttackAct();
+
+            yield return null;
         }
+    }
+
+    void AttackAct()
+    {
+        atkCoolTime -= Time.deltaTime;
+        if (atkCoolTime <= 0f)
+        {
+            attackTarget.GetComponent<CharactorCtrl>().Hit(atk);
+
+            atkCoolTime = atkSpeed;
+        }
+
+        //애니메이션 속도 조절(추후 레벨당 공속 증가 있을 시)
+        //https://wergia.tistory.com/41
+
+        //공격범위 벗어났을 때 하고있던 공격 마무리? or 캔슬
+        //마무리 시 해당 함수로 "공격범위 벗어남" 이동
     }
 
     public void Hit(float _damage)
@@ -171,7 +199,8 @@ public class CharactorCtrl : MonoBehaviour
         if (nowHealth <= 0f)
         {
             isDie = true;
-            Die();
+            //Die();
+            ChangeState(State.Die);
         }
     }
 
@@ -188,11 +217,38 @@ public class CharactorCtrl : MonoBehaviour
         this.GetComponent<SpriteRenderer>().color = color;
     }
 
-    public void Die()
+
+    //public void Die()
+    //{
+    //    for (int i = 0; i < AttackedList.Count; i++)
+    //    {
+    //        CharactorCtrl attackedCharac = AttackedList[i].GetComponent<CharactorCtrl>();
+
+    //        attackedCharac.attackTarget = null;
+    //    }
+
+    //    m_SpawnBase_Team.RemoveMonster(this);
+    //    animator.SetTrigger("isDie");
+    //    Destroy(this.gameObject, DeadAnimTime);
+    //}
+
+    public IEnumerator Die()
     {
+        for (int i = 0; i < AttackedList.Count; i++)
+        {
+            CharactorCtrl attackedCharac = AttackedList[i].GetComponent<CharactorCtrl>();
+
+            attackedCharac.attackTarget = null;
+            if (attackedCharac.AttackedList.Contains(this.gameObject))
+                attackedCharac.AttackedList.Remove(this.gameObject);
+        }
+
         m_SpawnBase_Team.RemoveMonster(this);
-        //CharSpawn에 List삭제, Destroy targetDestroy함수에 추가
-        //charSpawn.targetDestroy(this);
+        animator.SetTrigger("isDie");
+
+        yield return new WaitForSeconds(DeadAnimTime);
+
+        Destroy(this.gameObject);
     }
 
     protected CharSpawnBase m_SpawnBase_Team;
