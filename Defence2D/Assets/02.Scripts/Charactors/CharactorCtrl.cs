@@ -234,11 +234,16 @@ public class CharactorCtrl : MonoBehaviour
 
     public IEnumerator Die()
     {
+        //1
+        //attackTarget.GetComponent<CharactorCtrl>().AttackedList.Remove(this.gameObject);
+
         for (int i = 0; i < AttackedList.Count; i++)
         {
             CharactorCtrl attackedCharac = AttackedList[i].GetComponent<CharactorCtrl>();
 
             attackedCharac.attackTarget = null;
+
+            //2
             if (attackedCharac.AttackedList.Contains(this.gameObject))
                 attackedCharac.AttackedList.Remove(this.gameObject);
         }
