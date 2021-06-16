@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1f59184c3bf99944ba2cd6e736be59e, type: 3}
+  m_Name: SOFile_CharacterStat_001_K_Knight001
+  m_EditorClassIdentifier: 
+  nIndex: 1
+  szCode: Char_K_King001
+  nUnitType: 3
+  nUnitGrade: 1
+  nJob: 1
+  fDamage: 15
+  fGrowth_Damage: 1
+  fDefense: 10
+  fGrowth_Defense: 1
+  fHealth: 5000
+  fGrowth_Health: 5
+  fAttackRange: 1
+  fMoveSpeed: 0
+  fSpawnCoolTime: 2
+  fPrice: 10
+  szResourceName: knight001
+  fCharacterScale: 2
+  fSkillCoolTime: 1
+  szSkillCode: Skill_K_King001
+  nGold: 0

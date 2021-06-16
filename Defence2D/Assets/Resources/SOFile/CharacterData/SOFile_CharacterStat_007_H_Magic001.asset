@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1f59184c3bf99944ba2cd6e736be59e, type: 3}
+  m_Name: SOFile_CharacterStat_007_H_Magic001
+  m_EditorClassIdentifier: 
+  nIndex: 7
+  szCode: Char_H_Magic001
+  nUnitType: 2
+  nUnitGrade: 1
+  nJob: 3
+  fDamage: 400
+  fGrowth_Damage: 40
+  fDefense: 50
+  fGrowth_Defense: 5
+  fHealth: 800
+  fGrowth_Health: 40
+  fAttackRange: 3
+  fMoveSpeed: 0.5
+  fSpawnCoolTime: 50
+  fPrice: 5
+  szResourceName: Goblin001
+  fCharacterScale: 1.2
+  fSkillCoolTime: 0.8
+  szSkillCode: Skill_H_Magic001
+  nGold: 300

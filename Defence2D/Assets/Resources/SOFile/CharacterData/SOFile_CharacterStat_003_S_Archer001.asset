@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1f59184c3bf99944ba2cd6e736be59e, type: 3}
+  m_Name: SOFile_CharacterStat_003_S_Archer001
+  m_EditorClassIdentifier: 
+  nIndex: 3
+  szCode: Char_S_Archer001
+  nUnitType: 1
+  nUnitGrade: 1
+  nJob: 2
+  fDamage: 40
+  fGrowth_Damage: 1
+  fDefense: 5
+  fGrowth_Defense: 1
+  fHealth: 80
+  fGrowth_Health: 5
+  fAttackRange: 6
+  fMoveSpeed: 0.8
+  fSpawnCoolTime: 4
+  fPrice: 15
+  szResourceName: Archer001
+  fCharacterScale: 1
+  fSkillCoolTime: 1.5
+  szSkillCode: Skill_S_Archer001
+  nGold: 20
