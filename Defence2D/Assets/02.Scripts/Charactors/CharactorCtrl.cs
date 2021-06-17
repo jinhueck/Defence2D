@@ -18,20 +18,25 @@ public class CharactorCtrl : MonoBehaviour
 
     //캐릭터 정보
     private int index;
-    private string monsterName;
-    private string type;
-    private int level;
-    private int atk;
-    private int def;
-    private int health;
-    private int atkRange;
-    private int atkSpeed;
-    private int moveSpeed;
-    private int spawnCool;
-    private int price;
-    private string resourceName;
-    private float charSize;
-    private string reward;
+    private string szCode;
+    private int unitType;
+    private int unitGrade;
+    private int jobType;
+    private float damage;
+    private float growth_Damage;
+    private float defense;
+    private float growth_Defense;
+    private float health;
+    private float growth_Health;
+    private float attackRange;
+    private float moveSpeed;
+    public float spawnCoolTime;
+    public int price;
+    private string szResourceName;
+    private float characterScale;
+    private float skillCoolTime;
+    private string szSkillCode;
+    private int gold;
 
     float atkCoolTime;
     float nowHealth;
@@ -44,46 +49,59 @@ public class CharactorCtrl : MonoBehaviour
 
     Animator animator;
 
-    public void SetStat(MonsterData mData)
+    InGameMgr gameMgr;
+
+    public void SetStat(string _key)
     {
-        //기본 정보
-        index = mData.index;
-        monsterName = mData.monsterName;
-        type = mData.type;
-        level = mData.level;
-        atk = mData.atk;
-        def = mData.def;
-        health = mData.health;
-        atkRange = mData.atkRange;
-        atkSpeed = mData.atkSpeed;
-        moveSpeed = mData.moveSpeed;
-        spawnCool = mData.spawnCool;
-        price = mData.price;
-        resourceName = mData.resourceName;
-        charSize = mData.charSize;
-        reward = mData.reward;
+        SOFileStorage soStorage = GameObject.Find("SOFileStorage").GetComponent<SOFileStorage>();
+
+        SOFile_CharacterData cData;
+        soStorage.map_CharacterData.TryGetValue(_key, out cData);
+
+       //기본 정보
+        index = cData.nIndex;
+        szCode = cData.szCode;
+        unitType = cData.nUnitType;
+        unitGrade = cData.nUnitGrade;
+        jobType = cData.nJob;
+        damage = cData.fDamage;
+        growth_Damage = cData.fGrowth_Damage;
+        defense = cData.fDefense;
+        growth_Defense = cData.fGrowth_Defense;
+        health = cData.fHealth;
+        growth_Health = cData.fGrowth_Health;
+        attackRange = cData.fAttackRange;
+        moveSpeed = cData.fMoveSpeed;
+        spawnCoolTime = cData.fSpawnCoolTime;
+        price = cData.fPrice;
+        szResourceName = cData.szResourceName;
+        characterScale = cData.fCharacterScale;
+        skillCoolTime = cData.fSkillCoolTime;
+        szSkillCode = cData.szSkillCode;
+        gold = cData.nGold;
     }
 
     private void Start()
     {
-        //임시
-        moveSpeed = 1;
-        atkSpeed = 1;
-        atkRange = 3;
-        health = 100;
-        atk = 10;
-
+        print(index);
         //기본 셋팅
-        atkCoolTime = atkSpeed;
+        damage += growth_Damage * (unitGrade - 1);
+        defense += growth_Defense * (unitGrade - 1);
+        health += growth_Health * (unitGrade - 1);
+
+        atkCoolTime = skillCoolTime;
         DeadAnimTime = 3f;
         nowHealth = health;
         //HpImg.fillAmount = nowHealth / health;
 
+        this.gameObject.transform.localScale = new Vector2(characterScale, characterScale);
+
         AttackedList = new List<GameObject>();
         animator = this.GetComponent<Animator>();
 
-        ChangeState(State.Move);
+        gameMgr = GameObject.Find("InGameMgr").GetComponent<InGameMgr>();
 
+        ChangeState(State.Move);
     }
 
     public void ChangeState(State newState)
@@ -112,7 +130,7 @@ public class CharactorCtrl : MonoBehaviour
                 for (int i = 0; i < m_SpawnBase_Enemy.m_listCharCtrl_Use.Count; i++)
                 {
                     float distance = Mathf.Abs(m_SpawnBase_Enemy.m_listCharCtrl_Use[i].transform.position.x - this.transform.position.x);
-                    if (distance <= atkRange && distance < closestDist)
+                    if (distance <= attackRange && distance < closestDist)
                     {
                         closestDist = distance;
                         attackTarget = m_SpawnBase_Enemy.m_listCharCtrl_Use[i].gameObject;
@@ -128,6 +146,8 @@ public class CharactorCtrl : MonoBehaviour
 
     private IEnumerator Attack()
     {
+        atkCoolTime = skillCoolTime;
+
         animator.SetBool("isAttack", true);
 
         CharactorCtrl attackedCharac = attackTarget.GetComponent<CharactorCtrl>();
@@ -146,7 +166,7 @@ public class CharactorCtrl : MonoBehaviour
 
             //공격범위 벗어남
             float distance = Mathf.Abs(attackTarget.transform.position.x - this.transform.position.x);
-            if (distance > atkRange)
+            if (distance > attackRange)
             {
                 attackTarget = null;
                 ChangeState(State.Move);
@@ -161,7 +181,21 @@ public class CharactorCtrl : MonoBehaviour
             //yield return new WaitForSeconds(atkSpeed);
 
             if (attackTarget != null)
-                AttackAct();
+            {
+                atkCoolTime -= Time.deltaTime;
+                if (atkCoolTime <= 0f)
+                {
+                    AttackAct();
+
+                    atkCoolTime = skillCoolTime;
+                }
+
+                //애니메이션 속도 조절(추후 레벨당 공속 증가 있을 시)
+                //https://wergia.tistory.com/41
+
+                //공격범위 벗어났을 때 하고있던 공격 마무리? or 캔슬
+                //마무리 시 해당 함수로 "공격범위 벗어남" 이동
+            }
 
             yield return null;
         }
@@ -169,19 +203,44 @@ public class CharactorCtrl : MonoBehaviour
 
     void AttackAct()
     {
-        atkCoolTime -= Time.deltaTime;
-        if (atkCoolTime <= 0f)
+        //Attack_Normal
+        //attackTarget.GetComponent<CharactorCtrl>().Hit(damage);
+
+        switch (szSkillCode)
         {
-            attackTarget.GetComponent<CharactorCtrl>().Hit(atk);
+            case "Skill_K_King001":
+                Attack_Normal();
+                break;
 
-            atkCoolTime = atkSpeed;
+            case "Skill_S_Knight001":
+                Attack_Normal();
+                break;
+
+            case "Skill_S_Archer001":
+                Attack_Normal();
+                break;
+
+            case "Skill_S_Magic001":
+                Attack_Normal();
+                break;
+
+            case "Skill_H_Knight001":
+                Attack_Normal();
+                break;
+
+            case "Skill_H_Archer001":
+                Attack_Normal();
+                break;
+
+            case "Skill_H_Magic001":
+                Attack_Normal();
+                break;
         }
+    }
 
-        //애니메이션 속도 조절(추후 레벨당 공속 증가 있을 시)
-        //https://wergia.tistory.com/41
-
-        //공격범위 벗어났을 때 하고있던 공격 마무리? or 캔슬
-        //마무리 시 해당 함수로 "공격범위 벗어남" 이동
+    void Attack_Normal()
+    {
+        attackTarget.GetComponent<CharactorCtrl>().Hit(damage);
     }
 
     public void Hit(float _damage)
@@ -252,6 +311,9 @@ public class CharactorCtrl : MonoBehaviour
         animator.SetTrigger("isDie");
 
         yield return new WaitForSeconds(DeadAnimTime);
+
+        if (this.gameObject.tag == "Enemy")
+            gameMgr.Gold += gold;
 
         Destroy(this.gameObject);
     }

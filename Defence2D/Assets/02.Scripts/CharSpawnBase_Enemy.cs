@@ -30,6 +30,7 @@ public class CharSpawnBase_Enemy : CharSpawnBase
         if(nCharacterCtrl != null)
         {
             nCharacterCtrl.SetupSpawnBase(this, m_SpawnBaseOtherSide);
+            nCharacterCtrl.SetStat(p_SOFile_MonsterSpawn.characterCtrl.gameObject.name);
             m_listCharCtrl_Use.Add(nCharacterCtrl);
         }
     }

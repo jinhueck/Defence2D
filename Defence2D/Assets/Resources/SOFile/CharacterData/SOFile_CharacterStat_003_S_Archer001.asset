@@ -28,7 +28,7 @@ MonoBehaviour:
   fSpawnCoolTime: 4
   fPrice: 15
   szResourceName: Archer001
-  fCharacterScale: 1
+  fCharacterScale: 0.9
   fSkillCoolTime: 1.5
   szSkillCode: Skill_S_Archer001
   nGold: 20

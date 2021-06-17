@@ -8,6 +8,8 @@ public class CharSpawnBase_Team : CharSpawnBase
     public List<Button> m_listButton = new List<Button>();
     public List<CharactorCtrl> m_listCharacterPrefabList = new List<CharactorCtrl>();
 
+    InGameMgr gameMgr;
+
     public void Awake()
     {
         for (int i = 0; i < m_listButton.Count; i++)
@@ -18,6 +20,8 @@ public class CharSpawnBase_Team : CharSpawnBase
                 OnButtonPress(p_nIndex);
             });
         }
+
+        gameMgr = GameObject.Find("InGameMgr").GetComponent<InGameMgr>();
     }
     public override void SpawnMoster(int nIndex, bool bFlagMyTeam)
     {
@@ -35,12 +39,30 @@ public class CharSpawnBase_Team : CharSpawnBase
         if (nCharacterCtrl != null)
         {
             nCharacterCtrl.SetupSpawnBase(this, m_SpawnBaseOtherSide);
+            nCharacterCtrl.SetStat(m_listCharacterPrefabList[nIndex].gameObject.name);
             m_listCharCtrl_Use.Add(nCharacterCtrl);
         }
+        StartCoroutine(CheckSpawnCoolTime(nIndex, nCharacterCtrl.spawnCoolTime));
+    }
+
+    IEnumerator CheckSpawnCoolTime(int _idx, float _coolTime)
+    {
+        m_listButton[_idx].interactable = false;
+
+        yield return new WaitForSeconds(_coolTime);
+
+        m_listButton[_idx].interactable = true;
     }
 
     public void OnButtonPress(int nIndex)
     {
-        SpawnMoster(nIndex, true);
+        CharactorCtrl charCtrl = m_listCharacterPrefabList[nIndex].gameObject.GetComponent<CharactorCtrl>();
+        charCtrl.SetStat(m_listCharacterPrefabList[nIndex].gameObject.name);
+
+        if (gameMgr.Gold >= charCtrl.price)
+        {
+            gameMgr.Gold -= charCtrl.price;
+            SpawnMoster(nIndex, true);
+        }
     }
 }
