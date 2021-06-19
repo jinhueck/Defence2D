@@ -17,8 +17,8 @@ public class CharactorCtrl : MonoBehaviour
     public int key;
 
     //캐릭터 정보
-    private int index;
-    private string szCode;
+    private int c_index;
+    private string c_szCode;
     private int unitType;
     private int unitGrade;
     private int jobType;
@@ -38,11 +38,31 @@ public class CharactorCtrl : MonoBehaviour
     private string szSkillCode;
     private int gold;
 
+    //스킬정보
+    private int sIndex;
+    private string szCode;
+    private int atkTarget;
+    private int atkType;
+    private int atkRange;
+    private int projectileType;
+    private string projectile;
+    private bool penetration;
+    private int deleteRange;
+    private int projectileTime;
+    private int skillEffType;
+    private int skillEff;
+    private int add;
+    private int multi;
+    private int function;
+    private int functionCode;
+
     float atkCoolTime;
     float nowHealth;
     public Image HpImg;
     private bool isDie = false;
     float DeadAnimTime;
+
+    public GameObject projectileObj;
 
     public GameObject attackTarget = null;
     public List<GameObject> AttackedList;
@@ -58,8 +78,8 @@ public class CharactorCtrl : MonoBehaviour
         SOFile_CharacterData cData;
         soStorage.map_CharacterData.TryGetValue(_key, out cData);
 
-       //기본 정보
-        index = cData.nIndex;
+        //기본 정보
+        c_index = cData.nIndex;
         szCode = cData.szCode;
         unitType = cData.nUnitType;
         unitGrade = cData.nUnitGrade;
@@ -79,11 +99,30 @@ public class CharactorCtrl : MonoBehaviour
         skillCoolTime = cData.fSkillCoolTime;
         szSkillCode = cData.szSkillCode;
         gold = cData.nGold;
+
+        SOFile_SkillData sData;
+        soStorage.map_SkillData.TryGetValue(szSkillCode, out sData);
+        sIndex = sData.nIndex;
+        szCode = sData.szCode;
+        atkTarget = sData.atkTarget;
+        atkType = sData.atkType;
+        atkRange = sData.atkRange;
+        projectileType = sData.projectileType;
+        projectile = sData.projectile;
+        penetration = sData.penetration;
+        deleteRange = sData.deleteRange;
+        projectileTime = sData.projectileTime;
+        skillEffType = sData.skillEffType;
+        skillEff = sData.skillEff;
+        add = sData.add;
+        multi = sData.multi;
+        function = sData.function;
+        functionCode = sData.functionCode;
     }
 
     private void Start()
     {
-        print(index);
+        print(c_index);
         //기본 셋팅
         damage += growth_Damage * (unitGrade - 1);
         defense += growth_Defense * (unitGrade - 1);
@@ -98,6 +137,8 @@ public class CharactorCtrl : MonoBehaviour
 
         AttackedList = new List<GameObject>();
         animator = this.GetComponent<Animator>();
+
+        projectileObj = Resources.Load("Arrow") as GameObject;
 
         gameMgr = GameObject.Find("InGameMgr").GetComponent<InGameMgr>();
 
@@ -206,34 +247,18 @@ public class CharactorCtrl : MonoBehaviour
         //Attack_Normal
         //attackTarget.GetComponent<CharactorCtrl>().Hit(damage);
 
-        switch (szSkillCode)
+        switch (atkType)
         {
-            case "Skill_K_King001":
+            case 1:
                 Attack_Normal();
                 break;
 
-            case "Skill_S_Knight001":
-                Attack_Normal();
+            case 2:
+                Attack_Range();
                 break;
 
-            case "Skill_S_Archer001":
-                Attack_Normal();
-                break;
-
-            case "Skill_S_Magic001":
-                Attack_Normal();
-                break;
-
-            case "Skill_H_Knight001":
-                Attack_Normal();
-                break;
-
-            case "Skill_H_Archer001":
-                Attack_Normal();
-                break;
-
-            case "Skill_H_Magic001":
-                Attack_Normal();
+            case 3:
+                Attack_Shot();
                 break;
         }
     }
@@ -241,6 +266,36 @@ public class CharactorCtrl : MonoBehaviour
     void Attack_Normal()
     {
         attackTarget.GetComponent<CharactorCtrl>().Hit(damage);
+    }
+
+    void Attack_Range()
+    {
+        attackTarget.GetComponent<CharactorCtrl>().Hit(damage);
+
+        float attackDist = Mathf.Infinity;
+        for (int i = 0; i < m_SpawnBase_Enemy.m_listCharCtrl_Use.Count; i++)
+        {
+            attackDist = Mathf.Abs(attackTarget.transform.position.x - m_SpawnBase_Enemy.m_listCharCtrl_Use[i].transform.position.x);
+            if (attackDist <= atkRange)
+            {
+                m_SpawnBase_Enemy.m_listCharCtrl_Use[i].GetComponent<CharactorCtrl>().Hit(damage);
+            }
+        }
+    }
+
+    void Attack_Shot()
+    {
+        GameObject p_projectileObj = Instantiate(projectileObj, this.transform);
+        p_projectileObj.GetComponent<ProjectileCtrl>().Setup(projectileType, attackTarget, damage, this.transform.tag);
+
+        switch (projectileType)
+        {
+            case 1:
+                break;
+
+            case 2:
+                break;
+        }
     }
 
     public void Hit(float _damage)

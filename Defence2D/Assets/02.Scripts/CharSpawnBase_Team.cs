@@ -23,6 +23,7 @@ public class CharSpawnBase_Team : CharSpawnBase
 
         gameMgr = GameObject.Find("InGameMgr").GetComponent<InGameMgr>();
     }
+
     public override void SpawnMoster(int nIndex, bool bFlagMyTeam)
     {
         GameObject p_SpawnMonster = Instantiate(m_listCharacterPrefabList[nIndex].gameObject);
@@ -56,7 +57,7 @@ public class CharSpawnBase_Team : CharSpawnBase
 
     public void OnButtonPress(int nIndex)
     {
-        CharactorCtrl charCtrl = m_listCharacterPrefabList[nIndex].gameObject.GetComponent<CharactorCtrl>();
+        CharactorCtrl charCtrl = m_listCharacterPrefabList[nIndex];
         charCtrl.SetStat(m_listCharacterPrefabList[nIndex].gameObject.name);
 
         if (gameMgr.Gold >= charCtrl.price)
