@@ -1,0 +1,11 @@
+index,code,unlock_condition,unlock_condition_code,king_code,king_level,stage_gen_group_code,background_resource
+1,Stage_N_1_1,1,0,Char_K_King001,1,StageGen_N_1_1,bg_Normal001
+2,Stage_N_1_2,2,Stage_N_1_1,Char_K_King001,2,StageGen_N_1_2,bg_Normal001
+3,Stage_N_1_3,2,Stage_N_1_2,Char_K_King001,3,StageGen_N_1_3,bg_Normal001
+4,Stage_N_1_4,2,Stage_N_1_3,Char_K_King001,4,StageGen_N_1_4,bg_Normal001
+5,Stage_N_1_5,2,Stage_N_1_4,Char_K_King001,5,StageGen_N_1_5,bg_Normal001
+6,Stage_N_1_6,2,Stage_N_1_5,Char_K_King001,6,StageGen_N_1_6,bg_Normal001
+7,Stage_N_1_7,2,Stage_N_1_6,Char_K_King001,7,StageGen_N_1_7,bg_Normal001
+8,Stage_N_1_8,2,Stage_N_1_7,Char_K_King001,8,StageGen_N_1_8,bg_Normal001
+9,Stage_N_1_9,2,Stage_N_1_8,Char_K_King001,9,StageGen_N_1_9,bg_Normal001
+10,Stage_N_1_10,2,Stage_N_1_9,Char_K_King001,10,StageGen_N_1_10,bg_Normal001
